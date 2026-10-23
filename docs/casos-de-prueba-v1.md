@@ -209,7 +209,7 @@ Los casos y defectos se registran en **Jira** con dos tipos de incidencia: **Cas
 
 **Captura del proyecto:**
 
-![Proyecto Swag Labs en Jira](evidencias/jira-proyecto.png)
+![Proyecto Swag Labs en Jira](evidencias/SwagLabs-Jira-Evidencia.png)
 
 ---
 
