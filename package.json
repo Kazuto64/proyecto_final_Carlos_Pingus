@@ -4,6 +4,7 @@
   "description": "Proyecto final del Bootcamp Especialista en QA: casos manuales y suite automatizada con Playwright",
   "scripts": {
     "test": "playwright test",
+    "test:experiments": "playwright test --config=playwright.experiments.config.js",
     "report": "playwright show-report"
   },
   "author": "Carlos Daniel Pingus Rodriguez",

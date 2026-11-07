@@ -14,6 +14,9 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
+  /* Los experimentos de laboratorio (tests/experiments) no forman parte de la suite.
+     Se ejecutan aparte con: npm run test:experiments */
+  testIgnore: '**/experiments/**',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -31,6 +34,9 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+
+    /* Toolshop marca sus elementos con data-test (no con el data-testid por defecto) */
+    testIdAttribute: 'data-test',
   },
 
   /* Configure projects for major browsers */

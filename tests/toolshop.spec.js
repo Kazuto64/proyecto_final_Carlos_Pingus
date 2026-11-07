@@ -11,6 +11,10 @@ test('la página principal de Toolshop carga', async ({ page }) => {
 test('buscar un producto muestra resultados', async ({ page }) => {
   await page.goto('https://practicesoftwaretesting.com/');
 
+  // Antes de buscar, espera a que cargue la lista inicial de la portada. Si se busca antes,
+  // la respuesta tardía de esa lista puede llegar después y reemplazar los resultados.
+  await expect(page.getByTestId('product-name').first()).toBeVisible();
+
   // Busco "Sander" y no "Pliers": la portada ya muestra varios "Pliers" antes de buscar,
   // así que un expect sobre "Pliers" pasaría aunque la búsqueda estuviera rota.
   await page.getByPlaceholder('Search').fill('Sander');
@@ -19,13 +23,13 @@ test('buscar un producto muestra resultados', async ({ page }) => {
   // Comprueba que la página confirma la búsqueda realizada...
   await expect(page.getByText('Searched for: Sander')).toBeVisible();
   // ...y que el primer producto listado corresponde a lo buscado.
-  await expect(page.locator('[data-test="product-name"]').first()).toContainText('Sander');
+  await expect(page.getByTestId('product-name').first()).toContainText('Sander');
 });
 
 test('abrir el primer producto muestra su detalle', async ({ page }) => {
   await page.goto('https://practicesoftwaretesting.com/');
 
-  const firstProduct = page.locator('[data-test="product-name"]').first();
+  const firstProduct = page.getByTestId('product-name').first();
   const productName = await firstProduct.textContent();
   await firstProduct.click();
 
