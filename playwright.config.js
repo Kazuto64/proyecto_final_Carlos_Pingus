@@ -32,8 +32,11 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
 
-    /* Toolshop marca sus elementos con data-test (no con el data-testid por defecto) */
+    /* Toolshop y Swag Labs marcan sus elementos con data-test (no con el data-testid por defecto) */
     testIdAttribute: 'data-test',
+
+    /* Textos del sitio en inglés, sin depender del idioma de la máquina */
+    locale: 'en-US',
   },
 
   /* Configure projects for major browsers */
