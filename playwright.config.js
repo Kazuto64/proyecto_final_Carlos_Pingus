@@ -1,13 +1,10 @@
 // @ts-check
 import { defineConfig, devices } from '@playwright/test';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+import dotenv from 'dotenv';
+
+/* Lee el archivo .env (no se sube a Git) y deja sus valores en process.env */
+dotenv.config();
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -29,14 +26,17 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
+    /* Dominio de Swag Labs, escrito una sola vez (en .env). Cada goto lleva solo la ruta. */
+    baseURL: process.env.BASE_URL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
 
-    /* Toolshop marca sus elementos con data-test (no con el data-testid por defecto) */
+    /* Toolshop y Swag Labs marcan sus elementos con data-test (no con el data-testid por defecto) */
     testIdAttribute: 'data-test',
+
+    /* Textos del sitio en inglés, sin depender del idioma de la máquina */
+    locale: 'en-US',
   },
 
   /* Configure projects for major browsers */

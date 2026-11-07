@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 
 // Parte 2: romper el login a propósito.
 // Error esperado en el reporte: Expected "Epic sadface: Sorry…" · Received "Epic sadface: Username and password…"
-// Prueba que las assertions del test real «contraseña incorrecta» sí pueden fallar.
+// Prueba que las assertions de CP-SL-202 sí pueden fallar.
 test.skip('login roto: espera el mensaje de bloqueo con una contraseña incorrecta', async ({ page }) => {
   await page.goto('https://www.saucedemo.com/');
   await page.getByLabel('Username').fill('standard_user');

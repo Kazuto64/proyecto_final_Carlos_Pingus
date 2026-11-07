@@ -35,7 +35,7 @@ test('modo estricto resuelto por texto con .filter()', async ({ page }) => {
 
 // ── Parte 3: romper la assertion a propósito ────────────────────────────────
 
-// Error esperado: Expected: 1 · Received: 0. Demuestra que toHaveCount(0) del test real sí puede fallar.
+// Error esperado: Expected: 1 · Received: 0. Demuestra que toHaveCount(0) de CP-BUSQ-04 sí puede fallar.
 test.skip('assertion rota: espera 1 producto cuando la búsqueda no tiene resultados', async ({ page }) => {
   await page.goto(TOOLSHOP);
   await page.getByLabel('Search').fill('xyz');
@@ -63,6 +63,6 @@ test.skip('espera: fija con waitForTimeout antes de la lectura', async ({ page }
   expect(await page.getByText('There are no products found.').isVisible()).toBe(true);
 });
 
-// 3. La versión correcta (espera explícita) vive en tests/mi-busqueda.spec.js:
+// 3. La versión correcta (espera explícita) vive en tests/search/search.spec.js (CP-BUSQ-04):
 //      await expect(page.getByText('There are no products found.')).toBeVisible();
 //    La espera implícita está en fill() y click(): Playwright espera a que el elemento sea accionable.
