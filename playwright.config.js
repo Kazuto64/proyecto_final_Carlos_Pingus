@@ -6,6 +6,13 @@ import dotenv from 'dotenv';
 /* Lee el archivo .env (no se sube a Git) y deja sus valores en process.env */
 dotenv.config();
 
+/* Si falta una variable, avisar con claridad: se muestra el nombre, nunca el valor */
+for (const name of ['BASE_URL', 'SEARCH_URL', 'LOGIN_USER', 'LOGIN_PASSWORD']) {
+  if (!process.env[name]) {
+    throw new Error(`Falta la variable ${name}. Copia .env.example a .env y complétala.`);
+  }
+}
+
 /**
  * @see https://playwright.dev/docs/test-configuration
  */

@@ -16,9 +16,9 @@
 
 | ID | Requisito (inferido) | Casos | Estado de ejecución | Defectos | Observación |
 |---|---|---|---|---|---|
-| R1 | Los usuarios publicados inician sesión; un usuario bloqueado o una contraseña incorrecta reciben un mensaje claro. | CP-SL-001, **CP-SL-201**, **CP-SL-202** | CP-SL-001 aprobado; 201 y 202 por ejecutar | — | Antes solo tenía el login feliz. Se crearon 201 y 202 para los casos negativos. |
+| R1 | Los usuarios publicados inician sesión; un usuario bloqueado o una contraseña incorrecta reciben un mensaje claro. | CP-SL-001, **CP-SL-201**, **CP-SL-202**, CP-SL-211, CP-SL-212, CP-SL-215 | CP-SL-001 aprobado; 201, 202, 211, 212 y 215 automatizados (Módulo 2) | — | Antes solo tenía el login feliz. Se crearon 201 y 202 para los casos negativos. |
 | R2 | El catálogo se ordena según la opción elegida (A-Z, Z-A, precio ↑, precio ↓). | **CP-SL-203**, **CP-SL-204** | 203 por ejecutar; 204 fallido | S2-D2 | **Era un HUECO (sin casos).** Se crearon 2 casos; con `standard_user` falta ejecutar. |
-| R3 | El carrito refleja lo que se agrega y se quita, y no permite comprar con el carrito vacío. | CP-SL-001, **CP-SL-205**, **CP-SL-206** | 001 aprobado; 205 y 206 fallidos | DEF-03, S2-D1, S2-D3 | Antes solo tenía CP-SL-001. El carrito vacío (205) es el defecto más grave del proyecto. |
+| R3 | El carrito refleja lo que se agrega y se quita, y no permite comprar con el carrito vacío. | CP-SL-001, **CP-SL-205**, **CP-SL-206**, CP-SL-213, CP-SL-214 | 001 aprobado; 205 y 206 fallidos; 213 y 214 automatizados (Módulo 2) | DEF-03, S2-D1, S2-D3 | Antes solo tenía CP-SL-001. El carrito vacío (205) es el defecto más grave del proyecto. |
 | R4 | Nombre, apellido y código postal son obligatorios y deben tener contenido real. | CP-SL-103, 109, 113, 114, **207**, **301 a 305** | 103 y 301 a 304 aprobados; 109, 113, 114, 207 y 305 fallidos | DEF-02, DEF-04, S2-D4 | La regla de obligatoriedad se cumple (tabla de decisión: 8 de 8). Falla con espacios y con usuarios especiales. |
 | R5 | El código postal tiene exactamente 5 dígitos numéricos (RQ-CP-01). | CP-SL-101, 102, 104 a 108, 110 a 112 | 101, 102 y 110 aprobados; 104 a 108, 111 y 112 fallidos | DEF-SL-001 | **Requisito supuesto:** hay que confirmar el formato antes de corregir. |
 | R6 | El checkout respeta el orden de los pasos (datos → resumen → Finish) y Finish completa la orden. | CP-SL-001, **CP-SL-208**, **CP-SL-209** | 001 aprobado; 208 y 209 fallidos | DEF-05, S2-D5 | Antes solo tenía el flujo feliz. |
@@ -43,6 +43,20 @@ Los casos 204 a 209 se escribieron a partir de defectos ya reproducidos en las s
 | CP-SL-208 | R6 | `standard_user` con producto en el carrito → abrir `/checkout-step-two.html` por URL. | Redirige al paso 1. | Fallido (DEF-05) | Sesión 1, 19:10 |
 | CP-SL-209 | R6 | `error_user` → checkout completo → Finish. | «Thank you for your order!» | Fallido (S2-D5) | Sesión 2, 20:34 |
 | CP-SL-210 | R8 | Las 5 pruebas rápidas de accesibilidad en *Checkout: Your Information* (teclado, contraste, texto alternativo, formularios, nombres). | Pasan las 5 pruebas. | Parcial (2 cumplen, 2 fallan, 1 por confirmar) | Auditoría de la Semana 2 |
+
+## 2.1 Casos automatizados (Módulo 2 · Playwright)
+
+Los casos 201 y 202 se ejecutan ahora de forma automatizada. Los casos 211 a 215 se crearon al automatizar los flujos de autenticación y carrito. Su estado queda como «Automatizado» hasta registrar el resultado de la corrida en verde (`npx playwright test --project=chromium --repeat-each=3`).
+
+| ID | Req. | Pasos y datos | Resultado esperado | Estado | Test |
+|---|---|---|---|---|---|
+| CP-SL-201 | R1 | Login con `locked_out_user` y la contraseña de la cuenta de prueba. | No entra; «Sorry, this user has been locked out.» | Automatizado | `test-data/data-login.json` |
+| CP-SL-202 | R1 | Login con la cuenta de prueba y una contraseña incorrecta. | No entra; «Username and password do not match any user in this service». | Automatizado | `test-data/data-login.json` |
+| CP-SL-211 | R1 | Login con la cuenta de prueba (`.env`). | Llega a `/inventory.html`, título «Products» y menú visible. | Automatizado | `tests/auth/login.spec.js` |
+| CP-SL-215 | R1 | Login con usuario vacío y la contraseña de la cuenta de prueba. | No entra; «Username is required». | Automatizado | `test-data/data-login.json` |
+| CP-SL-212 | R1 | Sesión iniciada → Open Menu → Logout. | Vuelve al login y se ve el botón Login. | Automatizado | `tests/auth/login.spec.js` |
+| CP-SL-213 | R3 | Sesión iniciada → abrir el producto (Sauce Labs Backpack y Sauce Labs Bike Light, uno por test) → Add to cart → carrito. | Contador 1; el producto aparece en el carrito con cantidad 1. | Automatizado | `tests/shop/cart.spec.js` |
+| CP-SL-214 | R3 | Agregar Sauce Labs Backpack, volver al catálogo, agregar Sauce Labs Bike Light → carrito. | Contador 2; ambos productos con cantidad 1. | Automatizado | `tests/shop/cart.spec.js` |
 
 ## 3. Qué muestra la matriz
 

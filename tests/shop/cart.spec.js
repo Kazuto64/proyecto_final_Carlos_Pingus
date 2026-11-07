@@ -24,21 +24,26 @@ import { test, expect } from '../fixtures.js';
 const PRODUCT_A = 'Sauce Labs Backpack';
 const PRODUCT_B = 'Sauce Labs Bike Light';
 
+// Pocos datos que solo usa este archivo: un arreglo simple (un JSON sería más ceremonia que ayuda).
+const PRODUCTS = [PRODUCT_A, PRODUCT_B];
+
 test.describe('Carrito', () => {
-  test('CP-SL-213: agregar un producto lo muestra en el carrito con cantidad 1', async ({ homePage, productPage, cartPage }) => {
-    await homePage.openProduct(PRODUCT_A);
-    // Swag Labs cambia la URL antes de dibujar el detalle: se espera algo que solo existe ahí.
-    await expect(productPage.backButton).toBeVisible();
-    await expect(productPage.title).toHaveText(PRODUCT_A);
+  for (const product of PRODUCTS) {
+    test(`CP-SL-213: agregar ${product} lo muestra en el carrito con cantidad 1`, async ({ homePage, productPage, cartPage }) => {
+      await homePage.openProduct(product);
+      // Swag Labs cambia la URL antes de dibujar el detalle: se espera algo que solo existe ahí.
+      await expect(productPage.backButton).toBeVisible();
+      await expect(productPage.title).toHaveText(product);
 
-    await productPage.addToCart();
-    await expect(productPage.cartBadge).toHaveText('1');
+      await productPage.addToCart();
+      await expect(productPage.cartBadge).toHaveText('1');
 
-    await productPage.openCart();
-    await expect(cartPage.title).toHaveText('Your Cart');
-    await expect(cartPage.rowFor(PRODUCT_A)).toBeVisible();
-    await expect(cartPage.quantityOf(PRODUCT_A)).toHaveText('1');
-  });
+      await productPage.openCart();
+      await expect(cartPage.title).toHaveText('Your Cart');
+      await expect(cartPage.rowFor(product)).toBeVisible();
+      await expect(cartPage.quantityOf(product)).toHaveText('1');
+    });
+  }
 
   test('CP-SL-214: agregar dos productos distintos muestra ambos con cantidad 1', async ({ homePage, productPage, cartPage }) => {
     await homePage.openProduct(PRODUCT_A);
