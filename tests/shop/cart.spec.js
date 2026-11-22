@@ -13,19 +13,18 @@
 // Reconocimiento del sitio (tabla de locators):
 // | Elemento          | Locator elegido                                         | Por qué                                             |
 // |-------------------|---------------------------------------------------------|-----------------------------------------------------|
-// | Producto          | getByTestId('inventory-item-name').filter({ hasText })  | El rol con nombre se repite (imagen y título)       |
+// | Producto          | getByTestId('inventory-item-name') + nombre exacto      | El rol con nombre se repite (imagen y título)       |
 // | Título (detalle)  | getByTestId('inventory-item-name')                      | No es heading; no hay rol con nombre                |
-// | Agregar           | getByRole('button', { name: 'Add to cart' })            | Rol con nombre visible                              |
+// | Agregar           | getByTestId('add-to-cart')                              | Solo existe en el detalle (el rol se repite en el catálogo) |
 // | Aviso             | getByTestId('shopping-cart-badge')                      | Swag Labs no muestra alert; el contador es la señal |
 // | Enlace al carrito | getByTestId('shopping-cart-link')                       | Su nombre cambia con la cantidad («Cart, 1 items»)  |
 // | Fila y cantidad   | getByTestId('inventory-item').filter() + 'item-quantity'| La cantidad es texto, no un spinbutton              |
 import { test, expect } from '../fixtures.js';
+import cartData from '../../test-data/cart-data.json';
 
-const PRODUCT_A = 'Sauce Labs Backpack';
-const PRODUCT_B = 'Sauce Labs Bike Light';
-
-// Pocos datos que solo usa este archivo: un arreglo simple (un JSON sería más ceremonia que ayuda).
-const PRODUCTS = [PRODUCT_A, PRODUCT_B];
+// Los productos viven en test-data (revisión de la S20: cambiar un producto no exige editar el test).
+const { products: PRODUCTS } = cartData;
+const [PRODUCT_A, PRODUCT_B] = PRODUCTS;
 
 test.describe('Carrito', () => {
   for (const product of PRODUCTS) {

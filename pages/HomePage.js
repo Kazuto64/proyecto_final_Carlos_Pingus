@@ -19,7 +19,13 @@ export class HomePage {
   async openProduct(name) {
     // Cada producto tiene dos enlaces con el mismo nombre accesible (imagen y título):
     // getByRole('button', { name }) daría «strict mode violation». Se usa el nombre visible del título.
-    await this.page.getByTestId('inventory-item-name').filter({ hasText: name }).click();
+    // Nombre exacto (^ inicio, $ fin): con hasText: name, «Sauce Labs Bolt T-Shirt» también coincidiría
+    // con un producto llamado «Sauce Labs Bolt T-Shirt (Red)». Se escapan . ( ) porque son símbolos de RegExp.
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    await this.page
+      .getByTestId('inventory-item-name')
+      .filter({ hasText: new RegExp(`^\\s*${escaped}\\s*$`) })
+      .click();
   }
 
   // label: el texto visible de la opción, p. ej. «Price (low to high)».

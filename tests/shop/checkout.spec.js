@@ -1,5 +1,6 @@
 // Flujo transaccional de Swag Labs: carrito → Your Information → Overview → Complete.
-// Casos: CP-SL-001 y CP-SL-102 (data-driven), CP-SL-103 (validación intermedia) y CP-SL-216 (sesión guardada).
+// Casos: CP-SL-001 y CP-SL-102 (data-driven), CP-SL-103 (validación intermedia), CP-SL-217 (varios productos)
+// y CP-SL-216 (sesión guardada).
 // Requisitos: R4, R5, R6 y R7 en docs/matriz-trazabilidad-v1.md.
 //
 // El camino hasta «Your Information» lo trae la fixture checkoutAtBilling; los datos, test-data/checkout-data.json.
@@ -10,20 +11,31 @@ import checkoutData from '../../test-data/checkout-data.json';
 test.describe('Checkout', () => {
   // Data-driven: un test por compra del JSON. Un conjunto de datos nuevo = una fila nueva.
   for (const { id, name, buyer } of checkoutData.purchases) {
-    test(`${id}: ${name}`, async ({ checkoutAtBilling: billingPage, paymentPage }) => {
-      await billingPage.fillBuyer(buyer);
-      await billingPage.continueToOverview();
-      await expect(paymentPage.title).toHaveText('Checkout: Overview');
+    // test.step agrupa las acciones con un nombre que se ve en el reporte HTML;
+    // attach pega una captura en los dos momentos en que alguien preguntará «¿cómo se veía?».
+    test(`${id}: ${name}`, async ({ page, checkoutAtBilling: billingPage, paymentPage }) => {
+      await test.step('Completar los datos del comprador', async () => {
+        await billingPage.fillBuyer(buyer);
+        await billingPage.continueToOverview();
+        await expect(paymentPage.title).toHaveText('Checkout: Overview');
+      });
 
-      // R7: total = subtotal + impuesto del 8 % (los montos se leen cuando el resumen ya está en pantalla).
-      const { subtotal, tax, total } = await paymentPage.amounts();
-      expect(tax).toBeCloseTo(subtotal * checkoutData.taxRate, 2);
-      expect(total).toBeCloseTo(subtotal + tax, 2);
+      await test.step('Verificar el total del resumen', async () => {
+        // R7: total = subtotal + impuesto del 8 % (los montos se leen cuando el resumen ya está en pantalla).
+        const { subtotal, tax, total } = await paymentPage.amounts();
+        expect(tax).toBeCloseTo(subtotal * checkoutData.taxRate, 2);
+        expect(total).toBeCloseTo(subtotal + tax, 2);
+        await test.info().attach('resumen', { body: await page.screenshot(), contentType: 'image/png' });
+      });
 
-      await paymentPage.confirmOrder();
-      await expect(paymentPage.orderConfirmation).toBeVisible();
-      // Al terminar, el carrito queda vacío: el contador desaparece.
-      await expect(paymentPage.cartBadge).toBeHidden();
+      await test.step('Confirmar el pedido', async () => {
+        await paymentPage.confirmOrder();
+        // Primero la aserción: la foto se toma cuando la confirmación ya está en pantalla.
+        await expect(paymentPage.orderConfirmation).toBeVisible();
+        // Al terminar, el carrito queda vacío: el contador desaparece.
+        await expect(paymentPage.cartBadge).toBeHidden();
+        await test.info().attach('confirmacion', { body: await page.screenshot(), contentType: 'image/png' });
+      });
     });
   }
 
@@ -41,6 +53,26 @@ test.describe('Checkout', () => {
     await billingPage.postalCode.fill(postalCode);
     await billingPage.continueToOverview();
     await expect(paymentPage.title).toHaveText('Checkout: Overview');
+  });
+
+  // S20: el dato (lista de productos) y la fixture son nuevos; las demás pruebas no cambian.
+  test('CP-SL-217: compra con varios productos suma sus precios en el resumen', async ({ checkoutAtBillingWithProducts: billingPage, paymentPage }) => {
+    const [{ buyer }] = checkoutData.purchases;
+
+    await billingPage.fillBuyer(buyer);
+    await billingPage.continueToOverview();
+    await expect(paymentPage.title).toHaveText('Checkout: Overview');
+    await expect(paymentPage.itemNames).toHaveText(checkoutData.products);
+
+    const prices = await paymentPage.prices();
+    const { subtotal, tax, total } = await paymentPage.amounts();
+    const sum = prices.reduce((acc, price) => acc + price, 0);
+    expect(subtotal).toBeCloseTo(sum, 2);
+    expect(tax).toBeCloseTo(subtotal * checkoutData.taxRate, 2);
+    expect(total).toBeCloseTo(subtotal + tax, 2);
+
+    await paymentPage.confirmOrder();
+    await expect(paymentPage.orderConfirmation).toBeVisible();
   });
 });
 

@@ -25,18 +25,25 @@ export default defineConfig({
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  /* Un reintento clasifica, no arregla: una prueba que pasa en el reintento queda como «flaky» en el reporte.
+     Swag Labs y la búsqueda de Toolshop no crean datos reales, así que se permite 1 en toda la suite. */
+  retries: 1,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  /* Varios formatos a la vez: list en la terminal, html para quien lee el resultado, json para métricas.
+     open: 'never' evita que el navegador se abra solo al fallar. Se generan en cada corrida: no se suben. */
+  reporter: [
+    ['list'],
+    ['html', { outputFolder: 'playwright-report', open: 'never' }],
+    ['json', { outputFile: 'results.json' }],
+  ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Dominio de Swag Labs, escrito una sola vez (en .env). Cada goto lleva solo la ruta. */
     baseURL: process.env.BASE_URL,
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    /* Evidencia solo cuando hace falta: captura si falla; traza en el primer reintento (la «caja negra») */
+    screenshot: 'only-on-failure',
     trace: 'on-first-retry',
 
     /* Toolshop y Swag Labs marcan sus elementos con data-test (no con el data-testid por defecto) */
