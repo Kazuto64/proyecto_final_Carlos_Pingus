@@ -54,6 +54,10 @@ docs/               Documentación del Módulo 1 (plan, casos, matriz de trazabi
 | CP-SL-215 | Usuario vacío muestra que el usuario es obligatorio | `test-data/data-login.json` |
 | CP-SL-213 | Agregar un producto lo muestra en el carrito con cantidad 1 (uno por cada producto de la lista) | `tests/shop/cart.spec.js` |
 | CP-SL-214 | Agregar dos productos distintos muestra ambos con cantidad 1 | `tests/shop/cart.spec.js` |
+| CP-SL-001, CP-SL-102 | Compra completa (data-driven): total = subtotal + 8 % y confirmación | `test-data/checkout-data.json` |
+| CP-SL-103 | Sin código postal muestra el error; con él avanza al resumen | `tests/shop/checkout.spec.js` |
+| CP-SL-216 | Compra completa con la sesión guardada (sin formulario de login) | `tests/shop/checkout.spec.js` |
+| CP-SL-203 | Ordenar por precio de menor a mayor | `tests/shop/catalog.spec.js` |
 | CP-BUSQ-01 a 05 | Portada, localizadores, búsqueda con y sin resultados, detalle de producto (Toolshop) | `tests/search/search.spec.js` |
 
 Los casos CP-SL están trazados a sus requisitos en `docs/matriz-trazabilidad-v1.md`.

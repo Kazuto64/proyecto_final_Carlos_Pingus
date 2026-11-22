@@ -1,0 +1,21 @@
+{
+  "product": "Sauce Labs Backpack",
+  "taxRate": 0.08,
+  "purchases": [
+    {
+      "id": "CP-SL-001",
+      "name": "compra completa con código postal de 5 dígitos",
+      "buyer": { "firstName": "QA", "lastName": "Prueba", "postalCode": "15001" }
+    },
+    {
+      "id": "CP-SL-102",
+      "name": "compra completa con código postal de valor extremo",
+      "buyer": { "firstName": "QA", "lastName": "Prueba", "postalCode": "00000" }
+    }
+  ],
+  "missingPostalCode": {
+    "buyer": { "firstName": "QA", "lastName": "Prueba" },
+    "postalCode": "15001",
+    "error": "Error: Postal Code is required"
+  }
+}

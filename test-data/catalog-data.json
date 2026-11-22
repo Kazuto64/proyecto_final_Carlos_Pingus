@@ -1,0 +1,7 @@
+{
+  "sortByPriceLowToHigh": {
+    "label": "Price (low to high)",
+    "cheapest": 7.99,
+    "mostExpensive": 49.99
+  }
+}
