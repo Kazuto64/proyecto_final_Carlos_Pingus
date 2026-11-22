@@ -39,6 +39,7 @@ tests/auth/         Flujo de autenticación (Swag Labs)
 tests/shop/         Flujo de la tienda hasta el carrito (Swag Labs)
 tests/search/       Búsqueda en Toolshop (sesiones 10 y 11)
 tests/experiments/  Experimentos de laboratorio que fallan a propósito; fuera de la suite
+test-data/          Datos de prueba falsos para tests data-driven (las credenciales reales van en .env)
 docs/               Documentación del Módulo 1 (plan, casos, matriz de trazabilidad, defectos)
 .env.example        Variables necesarias, con valores de ejemplo
 ```
@@ -47,10 +48,11 @@ docs/               Documentación del Módulo 1 (plan, casos, matriz de trazabi
 | ID | Descripción | Archivo |
 |---|---|---|
 | CP-SL-211 | Login exitoso lleva al catálogo de productos | `tests/auth/login.spec.js` |
-| CP-SL-201 | Usuario bloqueado muestra mensaje de bloqueo | `tests/auth/login.spec.js` |
-| CP-SL-202 | Contraseña incorrecta muestra error de credenciales | `tests/auth/login.spec.js` |
 | CP-SL-212 | Cerrar sesión vuelve al login | `tests/auth/login.spec.js` |
-| CP-SL-213 | Agregar un producto lo muestra en el carrito con cantidad 1 | `tests/shop/cart.spec.js` |
+| CP-SL-201 | Usuario bloqueado muestra mensaje de bloqueo | `test-data/data-login.json` |
+| CP-SL-202 | Contraseña incorrecta muestra error de credenciales | `test-data/data-login.json` |
+| CP-SL-215 | Usuario vacío muestra que el usuario es obligatorio | `test-data/data-login.json` |
+| CP-SL-213 | Agregar un producto lo muestra en el carrito con cantidad 1 (uno por cada producto de la lista) | `tests/shop/cart.spec.js` |
 | CP-SL-214 | Agregar dos productos distintos muestra ambos con cantidad 1 | `tests/shop/cart.spec.js` |
 | CP-BUSQ-01 a 05 | Portada, localizadores, búsqueda con y sin resultados, detalle de producto (Toolshop) | `tests/search/search.spec.js` |
 
@@ -65,5 +67,8 @@ Los casos CP-SL están trazados a sus requisitos en `docs/matriz-trazabilidad-v1
 | Método | Inglés, verbo + objeto, camelCase | `openProduct()` |
 | Variable | Inglés, camelCase | `addToCartButton` |
 | Constante | Inglés, MAYÚSCULAS | `PRODUCT_A` |
+
+Los casos de login inválido salen de `test-data/data-login.json`: un caso nuevo es una fila nueva, con un `name` distinto.
+Si falta una variable de `.env`, la suite se detiene con «Falta la variable X» (muestra el nombre, nunca el valor).
 
 Sin esperas fijas (`waitForTimeout`) ni lecturas únicas (`expect(await …)`) en la suite; los `expect` viven en los tests.

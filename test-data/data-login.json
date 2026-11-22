@@ -1,0 +1,20 @@
+[
+  {
+    "id": "CP-SL-201",
+    "name": "usuario bloqueado muestra mensaje de bloqueo",
+    "user": "locked_out_user",
+    "error": "Epic sadface: Sorry, this user has been locked out."
+  },
+  {
+    "id": "CP-SL-202",
+    "name": "contraseña incorrecta muestra error de credenciales",
+    "password": "incorrectPassword",
+    "error": "Epic sadface: Username and password do not match any user in this service"
+  },
+  {
+    "id": "CP-SL-215",
+    "name": "usuario vacío muestra que el usuario es obligatorio",
+    "user": "",
+    "error": "Epic sadface: Username is required"
+  }
+]

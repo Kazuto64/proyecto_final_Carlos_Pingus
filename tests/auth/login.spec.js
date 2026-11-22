@@ -1,59 +1,35 @@
-// Sesión 13 · Un proyecto ordenado: carpetas, .env y Page Object
-// Sitio: Swag Labs (BASE_URL en .env). Casos: CP-SL-211, 201, 202 y 212 (nuevo: cerrar sesión).
-//
-// Mismos expect de la S12; cambió cómo se llega a ellos:
-//   - la URL vive en .env (baseURL), las credenciales reales también (process.env),
-//   - los locators viven en pages/LoginPage.js: si cambia uno, se corrige en una sola línea.
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../../pages/LoginPage.js';
+// Flujo de autenticación en Swag Labs.
+// Casos: CP-SL-211, CP-SL-212 y, desde test-data/data-login.json, CP-SL-201, 202 y 215
+// (R1 en docs/matriz-trazabilidad-v1.md).
+import { test, expect } from '../fixtures.js';
+import invalidLogins from '../../test-data/data-login.json';
 
 test.describe('Autenticación', () => {
-  let loginPage;
-
-  test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
-    await loginPage.goto();
-  });
-
-  test('login exitoso', async ({ page }) => {
-    await loginPage.login(process.env.LOGIN_USER, process.env.LOGIN_PASSWORD);
+  test('CP-SL-211: login exitoso lleva al catálogo de productos', async ({ page, loginPage, credentials }) => {
+    await loginPage.login(credentials.user, credentials.password);
 
     await expect(page).toHaveURL(/inventory\.html/);
     await expect(page.getByTestId('title')).toHaveText('Products');
     await expect(page.getByRole('button', { name: 'Open Menu' })).toBeVisible();
   });
 
-  test('usuario bloqueado', async ({ page }) => {
-    // locked_out_user es un usuario publicado que no da acceso: es un dato de prueba, no un secreto.
-    await loginPage.login('locked_out_user', process.env.LOGIN_PASSWORD);
-
-    await expect(loginPage.errorMessage).toHaveText('Epic sadface: Sorry, this user has been locked out.');
-    await expect(page).toHaveURL(/saucedemo\.com\/$/);
-  });
-
-  test('contraseña incorrecta', async () => {
-    await loginPage.login(process.env.LOGIN_USER, 'incorrectPassword');
-
-    await expect(loginPage.errorMessage).toHaveText(
-      'Epic sadface: Username and password do not match any user in this service'
-    );
-    await expect(loginPage.errorMessage).not.toContainText('locked out');
-  });
-
-  // Caso escrito antes que el código:
-  // CP-SL-212 — Cerrar sesión
-  //   Precondición: existe un usuario de prueba válido.
-  //   Pasos: 1) Abrir el login. 2) Iniciar sesión. 3) Abrir el menú. 4) Clic en «Logout».
-  //   Esperado: vuelves al login y el botón Login se ve.
-  test('cerrar sesión', async ({ page }) => {
-    await loginPage.login(process.env.LOGIN_USER, process.env.LOGIN_PASSWORD);
-    await expect(page).toHaveURL(/inventory\.html/);
-
-    await page.getByRole('button', { name: 'Open Menu' }).click();
-    // En Swag Labs «Logout» es un enlace con role="button".
-    await page.getByRole('button', { name: 'Logout' }).click();
+  test('CP-SL-212: cerrar sesión vuelve al login', async ({ page, homePage, loginPage }) => {
+    await homePage.logout();
 
     await expect(page).toHaveURL(/saucedemo\.com\/$/);
     await expect(loginPage.loginButton).toBeVisible();
   });
+
+  // Data-driven: un for que crea un test por fila (no un bucle dentro de un test).
+  // Caso nuevo = fila nueva en el JSON. Los datos falsos viajan en el JSON;
+  // si una fila no trae user o password, ?? usa el de la cuenta real, que llega desde .env.
+  for (const { id, name, user, password, error } of invalidLogins) {
+    test(`${id}: ${name}`, async ({ page, loginPage, credentials }) => {
+      await loginPage.login(user ?? credentials.user, password ?? credentials.password);
+
+      await expect(loginPage.errorMessage).toHaveText(error);
+      // Seguimos en el login: el mensaje solo tiene sentido si no entró.
+      await expect(page).toHaveURL(/saucedemo\.com\/$/);
+    });
+  }
 });
