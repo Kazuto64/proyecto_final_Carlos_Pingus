@@ -18,11 +18,11 @@
 |---|---|---|---|---|---|
 | R1 | Los usuarios publicados inician sesión; un usuario bloqueado o una contraseña incorrecta reciben un mensaje claro. | CP-SL-001, **CP-SL-201**, **CP-SL-202**, CP-SL-211, CP-SL-212, CP-SL-215 | CP-SL-001 aprobado; 201, 202, 211, 212 y 215 automatizados (Módulo 2) | — | Antes solo tenía el login feliz. Se crearon 201 y 202 para los casos negativos. |
 | R2 | El catálogo se ordena según la opción elegida (A-Z, Z-A, precio ↑, precio ↓). | **CP-SL-203**, **CP-SL-204** | 203 automatizado (Módulo 2); 204 fallido | S2-D2 | **Era un HUECO (sin casos).** Se crearon 2 casos; con `standard_user` falta ejecutar. |
-| R3 | El carrito refleja lo que se agrega y se quita, y no permite comprar con el carrito vacío. | CP-SL-001, **CP-SL-205**, **CP-SL-206**, CP-SL-213, CP-SL-214 | 001 aprobado; 205 y 206 fallidos; 213 y 214 automatizados (Módulo 2) | DEF-03, S2-D1, S2-D3 | Antes solo tenía CP-SL-001. El carrito vacío (205) es el defecto más grave del proyecto. |
+| R3 | El carrito refleja lo que se agrega y se quita, y no permite comprar con el carrito vacío. | CP-SL-001, **CP-SL-205**, **CP-SL-206**, CP-SL-213, CP-SL-214, CP-SL-217 | 001 aprobado; 205 y 206 fallidos; 213, 214 y 217 automatizados (Módulo 2) | DEF-03, S2-D1, S2-D3 | Antes solo tenía CP-SL-001. El carrito vacío (205) es el defecto más grave del proyecto. |
 | R4 | Nombre, apellido y código postal son obligatorios y deben tener contenido real. | CP-SL-103, 109, 113, 114, **207**, **301 a 305** | 103 y 301 a 304 aprobados; 109, 113, 114, 207 y 305 fallidos | DEF-02, DEF-04, S2-D4 | La regla de obligatoriedad se cumple (tabla de decisión: 8 de 8). Falla con espacios y con usuarios especiales. |
 | R5 | El código postal tiene exactamente 5 dígitos numéricos (RQ-CP-01). | CP-SL-101, 102, 104 a 108, 110 a 112 | 101, 102 y 110 aprobados; 104 a 108, 111 y 112 fallidos | DEF-SL-001 | **Requisito supuesto:** hay que confirmar el formato antes de corregir. |
 | R6 | El checkout respeta el orden de los pasos (datos → resumen → Finish) y Finish completa la orden. | CP-SL-001, **CP-SL-208**, **CP-SL-209**, CP-SL-216 | 001 aprobado y automatizado; 216 automatizado; 208 y 209 fallidos | DEF-05, S2-D5 | Antes solo tenía el flujo feliz. |
-| R7 | El total del resumen es igual al subtotal más un impuesto del 8 %. | CP-SL-001, CP-SL-102 | Aprobado; desde el Módulo 2 se comprueba en cada compra automatizada | — | Un solo caso; también se comprobó en las sesiones 1 y 2 ($43.18 y $19.42). La cobertura es débil. |
+| R7 | El total del resumen es igual al subtotal más un impuesto del 8 %. | CP-SL-001, CP-SL-102, CP-SL-217 | Aprobado; desde el Módulo 2 se comprueba en cada compra automatizada | — | Un solo caso; también se comprobó en las sesiones 1 y 2 ($43.18 y $19.42). La cobertura es débil. |
 | R8 | La compra se puede hacer con el teclado y es perceptible (WCAG 2.1.1, 2.4.7 y 1.4.11). | CP-SL-115, **CP-SL-210** | 115 fallido; 210 parcial | DEF-01 (= DEF-SL-002), A11Y-H1, A11Y-H2, A11Y-H3 | CP-SL-210 resume la auditoría de accesibilidad de la Semana 2. Falta probar con lector de pantalla. |
 
 *En **negrita**, los casos creados en esta sesión para cubrir huecos.*
@@ -46,7 +46,7 @@ Los casos 204 a 209 se escribieron a partir de defectos ya reproducidos en las s
 
 ## 2.1 Casos automatizados (Módulo 2 · Playwright)
 
-Los casos 201 y 202 se ejecutan ahora de forma automatizada. Los casos 211 a 216 se crearon al automatizar los flujos de autenticación, carrito y checkout; 001, 102, 103 y 203 vienen del Módulo 1. Su estado queda como «Automatizado» hasta registrar el resultado de la corrida en verde (`npx playwright test --project=chromium --repeat-each=3`).
+Los casos 201 y 202 se ejecutan ahora de forma automatizada. Los casos 211 a 217 se crearon al automatizar los flujos de autenticación, carrito y checkout; 001, 102, 103 y 203 vienen del Módulo 1. Su estado queda como «Automatizado» hasta registrar el resultado de la corrida en verde (`npx playwright test --project=chromium --repeat-each=3`).
 
 | ID | Req. | Pasos y datos | Resultado esperado | Estado | Test |
 |---|---|---|---|---|---|
@@ -61,6 +61,7 @@ Los casos 201 y 202 se ejecutan ahora de forma automatizada. Los casos 211 a 216
 | CP-SL-102 | R5, R7 | Igual que CP-SL-001 con código postal `00000`. | Avanza al resumen; mismos montos y confirmación. | Automatizado | `test-data/checkout-data.json` |
 | CP-SL-103 | R4 | `QA` / `Prueba` sin código postal → Continue; luego `15001` → Continue. | Primero «Error: Postal Code is required» y sigue en el paso 1; luego avanza al resumen. | Automatizado | `tests/shop/checkout.spec.js` |
 | CP-SL-203 | R2 | Catálogo → «Price (low to high)». | Precios en orden ascendente; $7.99 primero y $49.99 al final. | Automatizado | `tests/shop/catalog.spec.js` |
+| CP-SL-217 | R3, R7 | Backpack, Bike Light y Onesie al carrito → checkout completo. | El resumen lista los 3 productos; subtotal = suma de precios; total = subtotal + 8 %; confirmación. | Automatizado | `tests/shop/checkout.spec.js` |
 | CP-SL-216 | R6 | Compra completa con la sesión guardada (`storageState`), sin pasar por el formulario de login. | «Thank you for your order!» | Automatizado | `tests/shop/checkout.spec.js` |
 
 ## 3. Qué muestra la matriz

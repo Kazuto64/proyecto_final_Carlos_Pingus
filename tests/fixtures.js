@@ -8,6 +8,7 @@ import { ProductPage } from '../pages/ProductPage.js';
 import { CartPage } from '../pages/CartPage.js';
 import { BillingPage } from '../pages/BillingPage.js';
 import { PaymentPage } from '../pages/PaymentPage.js';
+import { SearchPage } from '../pages/SearchPage.js';
 import checkoutData from '../test-data/checkout-data.json';
 
 export const test = base.extend({
@@ -55,17 +56,20 @@ export const test = base.extend({
     await use(new PaymentPage(page));
   },
 
-  // El camino hasta «Checkout: Your Information», escrito una sola vez.
-  // Cada espera es por algo que solo existe en la pantalla nueva (Swag Labs cambia la URL antes de dibujar).
+  // Toolshop (tests/search): el archivo cambia baseURL a SEARCH_URL con test.use.
+  searchPage: async ({ page }, use) => {
+    await use(new SearchPage(page));
+  },
+
+  // El camino hasta «Checkout: Your Information», escrito una sola vez (ver goToBilling, abajo).
   checkoutAtBilling: async ({ homePage, productPage, cartPage, billingPage }, use) => {
-    await homePage.openProduct(checkoutData.product);
-    await expect(productPage.backButton).toBeVisible();
-    await productPage.addToCart();
-    await expect(productPage.cartBadge).toHaveText('1');
-    await productPage.openCart();
-    await expect(cartPage.title).toHaveText('Your Cart');
-    await cartPage.startCheckout();
-    await expect(billingPage.title).toHaveText('Checkout: Your Information');
+    await goToBilling({ homePage, productPage, cartPage, billingPage }, [checkoutData.product]);
+    await use(billingPage);
+  },
+
+  // El mismo camino con varios productos (S20). Las pruebas que usan checkoutAtBilling no cambian.
+  checkoutAtBillingWithProducts: async ({ homePage, productPage, cartPage, billingPage }, use) => {
+    await goToBilling({ homePage, productPage, cartPage, billingPage }, checkoutData.products);
     await use(billingPage);
   },
 
@@ -97,10 +101,29 @@ export const testWithSession = test.extend({
   },
 
   loggedInPage: async ({ page }, use) => {
-    await page.goto('/inventory.html');
-    await expect(page.getByTestId('title')).toHaveText('Products');
+    const homePage = new HomePage(page);
+    await homePage.goto();
+    await expect(homePage.title).toHaveText('Products');
     await use(page);
   },
 });
+
+// Agrega cada producto desde su detalle, abre el carrito y empieza el checkout.
+// Cada espera es por algo que solo existe en la pantalla nueva (Swag Labs cambia la URL antes de dibujar).
+async function goToBilling({ homePage, productPage, cartPage, billingPage }, products) {
+  for (const [index, product] of products.entries()) {
+    if (index > 0) {
+      await homePage.goto();
+    }
+    await homePage.openProduct(product);
+    await expect(productPage.backButton).toBeVisible();
+    await productPage.addToCart();
+    await expect(productPage.cartBadge).toHaveText(String(index + 1));
+  }
+  await productPage.openCart();
+  await expect(cartPage.title).toHaveText('Your Cart');
+  await cartPage.startCheckout();
+  await expect(billingPage.title).toHaveText('Checkout: Your Information');
+}
 
 export { expect };

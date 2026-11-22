@@ -1,5 +1,6 @@
 {
   "product": "Sauce Labs Backpack",
+  "products": ["Sauce Labs Backpack", "Sauce Labs Bike Light", "Sauce Labs Onesie"],
   "taxRate": 0.08,
   "purchases": [
     {
