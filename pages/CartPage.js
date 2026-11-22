@@ -5,6 +5,7 @@ export class CartPage {
     this.page = page;
     // En el carrito dice «Your Cart» (en el catálogo, «Products»).
     this.title = page.getByTestId('title');
+    this.checkoutButton = page.getByRole('button', { name: 'Checkout' });
   }
 
   rowFor(name) {
@@ -13,5 +14,9 @@ export class CartPage {
 
   quantityOf(name) {
     return this.rowFor(name).getByTestId('item-quantity');
+  }
+
+  async startCheckout() {
+    await this.checkoutButton.click();
   }
 }
